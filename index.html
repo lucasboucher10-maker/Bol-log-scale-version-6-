@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a1409">
+<title>BOL Log Buyer</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;width:100%;overflow:hidden;background:#0a1409;color:#dfeadb;font-family:'Inter',system-ui,sans-serif;font-size:15px}
+#app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.hdr{background:#111c0e;border-bottom:2px solid #4dc94d;padding:5px 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:8px}
+.hdr-l{font-size:9px;color:#6a8a65;letter-spacing:1.4px;text-transform:uppercase}
+.hdr-n{font-size:14px;font-weight:800;color:#4dc94d}
+.hdr-r{text-align:right;font-size:9px;color:#6a8a65}
+.hdr-m{font-size:11px;font-weight:800;color:#4dc94d}
+.scale-bar{background:#111c0e;border-bottom:1px solid #243520;overflow-x:auto;display:flex;flex-shrink:0;white-space:nowrap}
+.scale-tab{padding:7px 14px;border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;font-weight:500;color:#6a8a65;font-size:13px;flex-shrink:0}
+.scale-tab.active{font-weight:800;color:#4dc94d;border-bottom-color:#4dc94d}
+.scale-new{padding:7px 14px;border:none;background:none;cursor:pointer;color:#4dc94d;font-size:20px;font-weight:800;flex-shrink:0}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 12px}
+.tab-bar{background:#111c0e;border-top:1.5px solid #243520;display:flex;flex-shrink:0}
+.tab-btn{flex:1;padding:7px 2px;background:none;border:none;cursor:pointer;text-align:center;font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#6a8a65}
+.tab-btn.active{color:#4dc94d}
+.tab-icon{font-size:17px;display:block}
+.lbl{font-size:9px;font-weight:700;color:#6a8a65;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+.btn-grid{display:grid;gap:3px;margin-bottom:6px}
+.btn-grid button{background:#172214;border:2px solid #243520;color:#dfeadb;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px;padding:10px 4px;text-align:center}
+.btn-grid button.on{background:#4dc94d;border-color:#4dc94d;color:#fff}
+.calc-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:8px 0}
+.calc-box{background:#172214;border:1.5px solid #4dc94d;border-radius:7px;padding:5px 2px;text-align:center}
+.calc-val{font-size:14px;font-weight:800;color:#4dc94d}
+.calc-lbl{font-size:8px;color:#6a8a65}
+.act-row{display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:5px;margin-bottom:6px}
+.act-btn{background:#111c0e;border:2px solid #243520;color:#dfeadb;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;padding:11px 4px;text-align:center}
+.add-btn{background:#4dc94d;border:none;color:#fff;border-radius:8px;cursor:pointer;font-weight:800;font-size:15px;padding:11px}
+.mic-btn{background:#111c0e;border:2px solid #243520;color:#dfeadb;border-radius:8px;cursor:pointer;font-size:18px;padding:8px}
+.mic-btn.on{background:#c00;border-color:#c00;color:#fff}
+.field-lbl{font-size:9px;font-weight:700;color:#6a8a65;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px}
+.field-inp{background:#111c0e;border:1.5px solid #243520;border-radius:8px;padding:13px 11px;font-size:16px;color:#dfeadb;width:100%;outline:none;margin-bottom:10px}
+.start-btn{background:#4dc94d;color:#fff;border:none;border-radius:10px;padding:16px;font-size:17px;font-weight:800;width:100%;cursor:pointer;margin-top:6px}
+.tot-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.tot-box{background:#172214;border:2px solid #4dc94d;border-radius:9px;padding:10px;text-align:center}
+.tot-val{font-size:20px;font-weight:800;color:#4dc94d}
+.tot-lbl{font-size:10px;color:#6a8a65}
+.sec-ttl{font-size:9px;font-weight:700;color:#6a8a65;letter-spacing:1.3px;text-transform:uppercase;margin:10px 0 4px}
+.tbl{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:10px}
+.tbl th{background:#172214;border:1px solid #243520;padding:4px;text-align:center;font-size:9px;color:#6a8a65}
+.tbl td{border:1px solid #243520;padding:4px 5px;text-align:center}
+.tbl tr:nth-child(even) td{background:#111c0e}
+.tbl .tot-row td{font-weight:700;background:#1e3518;border-top:2px solid #4dc94d}
+.log-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #243520}
+.log-num{width:24px;height:24px;border-radius:6px;background:#4dc94d;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.log-info{flex:1}
+.log-sp{font-weight:700;font-size:13px}
+.log-bf{font-size:11px;color:#6a8a65}
+.edit-btn{background:#172214;color:#dfeadb;border:1px solid #243520;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer}
+.del-btn{background:#b03030;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer}
+.exp-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.exp-btn{background:#172214;color:#dfeadb;border:1.5px solid #243520;border-radius:8px;padding:13px;font-size:13px;font-weight:600;cursor:pointer}
+.voice-msg{font-size:11px;color:#6a8a65;text-align:center;padding:4px 0}
+.toast{position:fixed;bottom:65px;left:50%;transform:translateX(-50%);background:#4dc94d;color:#fff;padding:8px 20px;border-radius:16px;font-weight:700;font-size:14px;z-index:999;white-space:nowrap;pointer-events:none;display:none}
+.stab-row{display:flex;gap:6px;margin-bottom:10px}
+.stab-btn{flex:1;padding:10px 4px;border-radius:8px;border:none;font-weight:700;font-size:13px;cursor:pointer;background:#172214;color:#dfeadb}
+.stab-btn.active{background:#4dc94d;color:#fff}
+.price-sp{margin-bottom:14px}
+.price-sp-name{font-weight:700;color:#4dc94d;font-size:12px;margin-bottom:5px}
+.price-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.price-lbl{font-size:9px;color:#6a8a65;text-align:center;margin-bottom:2px}
+.price-inp{background:#111c0e;border:1.5px solid #243520;border-radius:6px;padding:7px 2px;text-align:center;font-size:13px;color:#dfeadb;width:100%}
+.ded-row{display:flex;align-items:center;margin-bottom:14px;gap:12px}
+.ded-info{flex:1}
+.ded-name{font-weight:700}
+.ded-full{font-size:12px;color:#6a8a65}
+.ded-inp{background:#111c0e;border:1.5px solid #243520;border-radius:6px;padding:10px 6px;text-align:center;font-size:14px;color:#dfeadb;width:60px}
+.toggle-wrap{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.toggle-btn{background:#172214;border:none;border-radius:20px;width:52px;height:28px;cursor:pointer;position:relative;flex-shrink:0;transition:background .15s}
+.toggle-btn.on{background:#4dc94d}
+.toggle-knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:11px;background:#fff;transition:left .15s}
+.toggle-btn.on .toggle-knob{left:27px}
+.all-card{background:#111c0e;border:1.5px solid #243520;border-radius:10px;padding:10px 14px;margin-bottom:10px}
+.all-card.active-card{border-color:#4dc94d}
+.all-card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.open-btn{background:#4dc94d;color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.grand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.diam-row{display:grid;gap:3px;margin-bottom:6px}
+.more-btn{font-size:10px;font-weight:700;color:#4dc94d;background:none;border:1px solid #4dc94d;border-radius:5px;padding:2px 8px;cursor:pointer}
+.crane-btn{background:#172214;border:1.5px solid #243520;color:#6a8a65;border-radius:7px;padding:5px 9px;font-size:10px;font-weight:800;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.crane-btn.on{background:#c00;border-color:#c00;color:#fff}
+.crane-banner{background:#3a0d0d;border:1.5px solid #c00;border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:11px;color:#ffb3b3;text-align:center;font-weight:700}
+.last-log-card{background:#172214;border:1.5px solid #4dc94d;border-radius:9px;padding:8px 10px;margin-bottom:8px}
+.last-log-ttl{font-size:9px;font-weight:700;color:#6a8a65;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px}
+.last-log-body{font-weight:700;font-size:14px;color:#dfeadb}
+.last-log-sub{font-size:11px;color:#6a8a65;margin-top:2px}
+.mic-btn.listening-loop{animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <div><div class="hdr-l">BOL Wood Services · Chapman, ME</div><div class="hdr-n">Log Buyer — Riki Boucher</div></div>
+    <div id="hdr-crane"></div>
+    <div class="hdr-r"><div>207-227-3293</div><div class="hdr-m" id="hdr-stats">0 logs · $0</div></div>
+  </div>
+  <div class="scale-bar" id="scale-bar"></div>
+  <div class="content" id="content"></div>
+  <div class="toast" id="toast"></div>
+  <div class="tab-bar" id="tab-bar"></div>
+</div>
+
+<script>
+// ── Int'l 1/4" Rule Table ────────────────────────────────────────────────────
+const IL=[8,10,12,14,16];
+const IT={6:[5,7,8,10,11],7:[8,10,12,14,16],8:[12,15,18,21,24],9:[17,21,25,30,34],10:[23,29,34,40,46],11:[30,37,45,52,60],12:[38,47,57,66,76],13:[47,59,70,82,94],14:[57,71,86,100,114],15:[69,86,103,120,138],16:[81,101,121,141,162],17:[94,118,141,165,188],18:[109,136,163,190,218],19:[125,156,187,218,250],20:[142,177,213,248,284],21:[160,200,240,280,320],22:[180,224,269,314,359],23:[200,250,300,350,400],24:[222,277,333,388,444],25:[245,306,367,429,490],26:[269,336,403,471,538],27:[294,368,441,515,588],28:[321,401,481,561,642],29:[349,436,523,610,698],30:[378,473,567,661,756],31:[409,511,613,715,818],32:[441,551,661,771,882],33:[474,593,711,829,948],34:[509,636,763,890,1018],35:[545,681,817,953,1090],36:[583,728,874,1019,1165]};
+function calcBF(len,diam){const r=IT[Math.round(diam)];if(!r)return 0;const i=IL.indexOf(len);return i<0?0:r[i];}
+
+// ── Constants ────────────────────────────────────────────────────────────────
+const LENGTHS=[8,10,12,14,16];
+const DIAMS=[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36];
+const GRADES=[1,2,3,4,5];
+const SP_MAIN=["HM","SM","YB","WB","BE"];
+const SP_OTHER=["AS","PW","SF","CE","TA"];
+const SP_NAMES={HM:"Hard Maple",SM:"Soft Maple",YB:"Yellow Birch",WB:"White Birch",BE:"Beech",AS:"Ash",PW:"Pine",SF:"Spruce/Fir",CE:"Cedar",TA:"Tamarack"};
+const DED_CODES=["SW","RT","CR","FK","HD","ST"];
+const DED_NAMES={SW:"Sweep",RT:"Rot",CR:"Crook",FK:"Fork",HD:"Hollow",ST:"Stain"};
+const DEF_PRICES={HM:{1:140,2:110,3:80,4:55,5:35},SM:{1:120,2:95,3:70,4:48,5:30},YB:{1:130,2:100,3:75,4:50,5:32},WB:{1:100,2:80,3:60,4:40,5:25},BE:{1:90,2:72,3:55,4:38,5:24},AS:{1:110,2:88,3:65,4:44,5:28},PW:{1:80,2:65,3:50,4:35,5:22},SF:{1:75,2:60,3:46,4:32,5:20},CE:{1:85,2:68,3:52,4:36,5:23},TA:{1:78,2:62,3:48,4:33,5:21}};
+const DEF_DEDS={SW:20,RT:30,CR:15,FK:25,HD:40,ST:10};
+
+// ── State ────────────────────────────────────────────────────────────────────
+const SK="bol_v5";
+function loadState(){try{return JSON.parse(localStorage.getItem(SK)||"{}")}catch{return{}}}
+function saveState(){localStorage.setItem(SK,JSON.stringify(S))}
+function newScale(num){return{id:Date.now()+(Math.random()*100|0),num,customer:"",truck:"",landowner:"",date:new Date().toISOString().slice(0,10),notes:"",logs:[]}}
+
+const saved=loadState();
+const S={
+  dark: saved.dark??true,
+  tab: "info",
+  stab: "prices",
+  scales: saved.scales||[newScale(1)],
+  activeId: saved.activeId||null,
+  prices: saved.prices||JSON.parse(JSON.stringify(DEF_PRICES)),
+  deds: saved.deds||{...DEF_DEDS},
+  craneMode: saved.craneMode??false,
+  // entry
+  len:16, diam:12, grade:1, ded:"NONE", sp:"HM",
+  showOther:false,
+  editId:null,
+  lastEntry:null,
+  listening:false,
+  voiceMsg:"",
+  craneListening:false,
+  craneStatus:"",
+};
+if(!S.activeId) S.activeId=S.scales[0].id;
+
+function activeScale(){return S.scales.find(s=>s.id===S.activeId)||S.scales[0]}
+function updateActive(patch){S.scales=S.scales.map(s=>s.id===S.activeId?{...s,...patch}:s);saveState()}
+
+function getCalc(len,diam,grade,ded,sp){
+  const gross=calcBF(len,diam);
+  const pct=ded==="NONE"?0:(S.deds[ded]||0);
+  const net=gross-Math.round(gross*pct/100);
+  const rate=(S.prices[sp]||DEF_PRICES[sp]||{})[grade]||0;
+  return{gross,net,rate,val:(net/1000)*rate};
+}
+
+function scaleTotals(logs){
+  return logs.reduce((a,l)=>{
+    a.count++;a.net+=l.net;a.val+=l.val;
+    a.bySp[l.sp]=a.bySp[l.sp]||{net:0,val:0,ct:0};
+    a.bySp[l.sp].net+=l.net;a.bySp[l.sp].val+=l.val;a.bySp[l.sp].ct++;
+    a.byGr[l.grade]=a.byGr[l.grade]||{net:0,val:0,ct:0};
+    a.byGr[l.grade].net+=l.net;a.byGr[l.grade].val+=l.val;a.byGr[l.grade].ct++;
+    return a;
+  },{count:0,net:0,val:0,bySp:{},byGr:{}});
+}
+
+function grandTotals(){
+  return S.scales.reduce((a,s)=>{const t=scaleTotals(s.logs);a.count+=t.count;a.net+=t.net;a.val+=t.val;return a;},{count:0,net:0,val:0});
+}
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.style.display="block";setTimeout(()=>el.style.display="none",2000)}
+
+// ── Audio: confirmation ding ────────────────────────────────────────────────
+let _actx=null;
+function ding(){
+  try{
+    if(!_actx)_actx=new(window.AudioContext||window.webkitAudioContext)();
+    if(_actx.state==="suspended")_actx.resume();
+    const t0=_actx.currentTime;
+    // two-tone loud confirmation ding, audible over BT headset / cab noise
+    [[880,t0,0.14],[1320,t0+0.13,0.16]].forEach(([freq,start,dur])=>{
+      const osc=_actx.createOscillator();const gain=_actx.createGain();
+      osc.type="sine";osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0,start);
+      gain.gain.linearRampToValueAtTime(0.9,start+0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001,start+dur);
+      osc.connect(gain);gain.connect(_actx.destination);
+      osc.start(start);osc.stop(start+dur+0.02);
+    });
+  }catch(e){/* audio not available */}
+}
+
+// ── Voice: shared field parser ──────────────────────────────────────────────
+function parseFields(t){
+  const spMap={"hard maple":"HM","soft maple":"SM","yellow birch":"YB","white birch":"WB","beech":"BE","ash":"AS","pine":"PW","spruce":"SF","fir":"SF","cedar":"CE","tamarack":"TA"};
+  for(const[k,v]of Object.entries(spMap)){if(t.includes(k)){S.sp=v;break;}}
+  const lm=t.match(/\b(8|10|12|14|16)\s*(?:foot|feet|ft)?/);if(lm)S.len=+lm[1];
+  const dm=t.match(/(?:diameter|diam)\s*(\d+)|(\d+)\s*inch/);
+  if(dm)S.diam=+(dm[1]||dm[2]);
+  else{const ns=[...t.matchAll(/\b(\d+)\b/g)].map(m=>+m[1]).filter(n=>n>=6&&n<=36&&n!==(lm?+lm[1]:0));if(ns.length)S.diam=ns[0];}
+  const gm=t.match(/grade\s*([1-5])|g([1-5])\b/);if(gm)S.grade=+(gm[1]||gm[2]);
+  const dm2={sweep:"SW",rot:"RT",crook:"CR",fork:"FK",hollow:"HD",stain:"ST",none:"NONE"};
+  for(const[k,v]of Object.entries(dm2)){if(t.includes(k)){S.ded=v;break;}}
+}
+
+// ── Voice: single-shot capture (manual mic button — unchanged behavior) ─────
+function startVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){S.voiceMsg="Not supported in Chrome";render();return;}
+  const r=new SR();r.lang="en-US";r.interimResults=false;
+  S.listening=true;S.voiceMsg="Listening…";render();
+  r.onresult=ev=>{
+    const t=ev.results[0][0].transcript.toLowerCase();
+    S.voiceMsg=`"${t}"`;
+    parseFields(t);
+    S.listening=false;render();
+  };
+  r.onerror=()=>{S.voiceMsg="Mic error";S.listening=false;render();};
+  r.onend=()=>{S.listening=false;render();};
+  r.start();
+}
+
+// ── Crane Mode: hands-free continuous listening ─────────────────────────────
+// Listens continuously. Saying "add log" / "next log" / "log it" submits the
+// current field values (parsed from everything said since the last add) and
+// plays a loud confirmation ding. Designed for Bluetooth headset use in-cab.
+let _craneRec=null;
+let _craneBuffer="";
+const ADD_PHRASES=/\b(add log|next log|log it|add it|that's it|save log)\b/;
+
+function craneSupported(){
+  return!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+}
+
+function startCraneListening(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){S.craneStatus="Voice not supported in this browser";render();return;}
+  if(_craneRec)return; // already running
+  const r=new SR();r.lang="en-US";r.continuous=true;r.interimResults=true;
+  _craneRec=r;
+  S.craneListening=true;S.craneStatus="Crane Mode listening…";render();
+  let started=false;
+  const watchdog=setTimeout(()=>{
+    if(!started&&S.craneMode){
+      S.craneStatus="Mic never started — this phone/browser may not support voice recognition. Try Chrome desktop or iPhone Safari.";
+      S.craneMode=false;stopCraneListening();render();
+    }
+  },4000);
+  r.onstart=()=>{started=true;clearTimeout(watchdog);};
+  r.onresult=ev=>{
+    started=true;clearTimeout(watchdog);
+    let finalChunk="";
+    for(let i=ev.resultIndex;i<ev.results.length;i++){
+      const res=ev.results[i];
+      if(res.isFinal)finalChunk+=res[0].transcript.toLowerCase()+" ";
+    }
+    if(!finalChunk)return;
+    _craneBuffer+=finalChunk;
+    // Parse whatever's been said so far so the field UI updates live
+    parseFields(_craneBuffer);
+    if(ADD_PHRASES.test(_craneBuffer)){
+      addLog();
+      ding();
+      S.craneStatus=`Log #${activeScale().logs.length} added — keep talking for next log`;
+      _craneBuffer="";
+    }else{
+      S.craneStatus=`Heard: "${finalChunk.trim()}"`;
+    }
+    render();
+  };
+  r.onerror=e=>{
+    if(e.error==="no-speech"||e.error==="aborted")return; // keep-alive will restart, no need to alarm
+    if(e.error==="not-allowed"||e.error==="service-not-allowed"){
+      S.craneStatus="Mic blocked — allow microphone access for this page in browser settings";
+      S.craneMode=false;saveState();
+    }else if(e.error==="network"){
+      S.craneStatus="No network — voice recognition needs an internet connection";
+    }else{
+      S.craneStatus="Mic error: "+e.error;
+    }
+    render();
+  };
+  r.onend=()=>{
+    _craneRec=null;
+    // auto-restart while crane mode is still on (browsers stop continuous rec periodically)
+    if(S.craneMode){startCraneListening();}else{S.craneListening=false;render();}
+  };
+  r.start();
+}
+
+function stopCraneListening(){
+  S.craneListening=false;
+  if(_craneRec){try{_craneRec.onend=null;_craneRec.stop();}catch(e){}_craneRec=null;}
+  _craneBuffer="";
+  S.craneStatus="";
+}
+
+function toggleCraneMode(){
+  S.craneMode=!S.craneMode;saveState();
+  if(S.craneMode){
+    startCraneListening();
+    toast("Crane Mode ON — say field values, then \"add log\"");
+  }else{
+    stopCraneListening();
+    toast("Crane Mode OFF");
+  }
+  render();
+}
+
+
+// ── Add Log ──────────────────────────────────────────────────────────────────
+function addLog(){
+  const c=getCalc(S.len,S.diam,S.grade,S.ded,S.sp);
+  const entry={id:S.editId||Date.now(),len:S.len,diam:S.diam,grade:S.grade,ded:S.ded,sp:S.sp,...c};
+  const sc=activeScale();
+  if(S.editId){
+    updateActive({logs:sc.logs.map(l=>l.id===S.editId?entry:l)});
+    S.editId=null;toast("Log updated ✓");
+  }else{
+    updateActive({logs:[...sc.logs,entry]});
+    toast(`Log #${sc.logs.length+1} added ✓`);
+  }
+  S.lastEntry={len:S.len,diam:S.diam,grade:S.grade,ded:S.ded,sp:S.sp};
+  render();
+}
+
+
+// ── PDF GENERATOR ────────────────────────────────────────────────────────────
+function generatePDF(sc, t){
+  const win = window.open("","_blank");
+  if(!win){ toast("Allow popups to print"); return; }
+  const rows = sc.logs.map((l,i)=>`
+    <tr>
+      <td>${i+1}</td><td>${l.sp}</td><td>${l.len}'</td><td>${l.diam}"</td>
+      <td>G${l.grade}</td><td>${l.ded==="NONE"?"—":l.ded}</td>
+      <td>${l.gross}</td><td>${l.gross-l.net}</td><td>${l.net}</td>
+      <td>${l.rate}</td><td>$${l.val.toFixed(2)}</td>
+    </tr>`).join("");
+  const spRows = Object.entries(t.bySp).map(([s,d])=>`
+    <tr><td>${s}</td><td>${d.ct}</td><td>${d.net.toLocaleString()}</td><td>$${d.val.toFixed(2)}</td></tr>`).join("");
+  const grRows = Object.entries(t.byGr).sort(([a],[b])=>+a-+b).map(([g,d])=>`
+    <tr><td>G${g}</td><td>${d.ct}</td><td>${d.net.toLocaleString()}</td><td>$${d.val.toFixed(2)}</td></tr>`).join("");
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>BOL Scale Ticket #${sc.num}</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Courier New',monospace;font-size:10px;padding:14px}
+    .hdr{text-align:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:10px}
+    .co{font-size:16px;font-weight:bold;letter-spacing:1px}
+    .sub{font-size:10px;margin-top:2px}
+    .ttl{font-size:13px;font-weight:bold;letter-spacing:3px;margin-top:8px}
+    .info{display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;margin:8px 0;font-size:10px}
+    .ir{display:flex;gap:4px}
+    .il{font-weight:bold;min-width:64px}
+    .iv{border-bottom:1px solid #555;flex:1}
+    .sec{font-size:9px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;background:#000;color:#fff;padding:2px 5px;margin:8px 0 2px}
+    table{width:100%;border-collapse:collapse;font-size:9px}
+    th{background:#eee;border:1px solid #999;padding:3px;text-align:center;font-size:8px}
+    td{border:1px solid #ccc;padding:2px 3px;text-align:center}
+    tr:nth-child(even) td{background:#fafafa}
+    .tr-tot td{font-weight:bold;background:#ddd;border-top:2px solid #000}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;margin-top:8px}
+    .totbox{border:2px solid #000;padding:8px;margin-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center}
+    .tv{font-size:14px;font-weight:bold}
+    .tl{font-size:8px;text-transform:uppercase;color:#444;margin-top:1px}
+    .sigs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;font-size:10px}
+    .sl{border-bottom:1px solid #333;margin-top:14px}
+    .foot{text-align:center;font-size:8px;color:#777;margin-top:10px;border-top:1px solid #ccc;padding-top:6px}
+    @media print{body{padding:8px}}
+  </style></head><body>
+  <div class="hdr">
+    <div class="co">BOL WOOD SERVICES INC.</div>
+    <div class="sub">Chapman, Maine 04757</div>
+    <div class="sub">Riki Boucher &middot; Log Buyer &middot; (207) 227-3293</div>
+    <div class="ttl">SCALE TICKET #${sc.num}</div>
+  </div>
+  <div class="info">
+    <div class="ir"><span class="il">Customer:</span><span class="iv">${sc.customer||""}</span></div>
+    <div class="ir"><span class="il">Date:</span><span class="iv">${sc.date||""}</span></div>
+    <div class="ir"><span class="il">Ticket #:</span><span class="iv">${sc.truck||""}</span></div>
+    <div class="ir"><span class="il">Land Owner:</span><span class="iv">${sc.landowner||""}</span></div>
+  </div>
+  <div class="sec">Log Detail — International 1/4" Rule</div>
+  <table>
+    <thead><tr><th>#</th><th>Sp</th><th>Len</th><th>Dia</th><th>Gr</th><th>Ded</th><th>Gross</th><th>-BF</th><th>Net</th><th>$/M</th><th>Value</th></tr></thead>
+    <tbody>${rows}
+      <tr class="tr-tot"><td colspan="6" style="text-align:right">TOTALS</td>
+        <td>${sc.logs.reduce((a,l)=>a+l.gross,0)}</td>
+        <td>${sc.logs.reduce((a,l)=>a+(l.gross-l.net),0)}</td>
+        <td>${t.net.toLocaleString()}</td><td></td><td>$${t.val.toFixed(2)}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="two">
+    <div><div class="sec">By Species</div>
+      <table><thead><tr><th>Sp</th><th>Logs</th><th>Net BF</th><th>Value</th></tr></thead>
+      <tbody>${spRows}<tr class="tr-tot"><td>Tot</td><td>${t.count}</td><td>${t.net.toLocaleString()}</td><td>$${t.val.toFixed(2)}</td></tr></tbody></table>
+    </div>
+    <div><div class="sec">By Grade</div>
+      <table><thead><tr><th>Gr</th><th>Logs</th><th>Net BF</th><th>Value</th></tr></thead>
+      <tbody>${grRows}<tr class="tr-tot"><td>Tot</td><td>${t.count}</td><td>${t.net.toLocaleString()}</td><td>$${t.val.toFixed(2)}</td></tr></tbody></table>
+    </div>
+  </div>
+  <div class="totbox">
+    <div><div class="tv">${t.count}</div><div class="tl">Logs</div></div>
+    <div><div class="tv">${t.net.toLocaleString()}</div><div class="tl">Net BF</div></div>
+    <div><div class="tv">${(t.net/1000).toFixed(3)}</div><div class="tl">MBF</div></div>
+    <div><div class="tv">$${t.val.toFixed(2)}</div><div class="tl">Total Value</div></div>
+  </div>
+  <div class="sigs">
+    <div><div class="sl"></div><div>Log Buyer</div></div>
+    <div><div class="sl"></div><div>Seller / Driver</div></div>
+  </div>
+  <div class="foot">International 1/4" Log Rule &middot; BOL Wood Services Inc. &middot; Chapman, ME 04757 &middot; (207) 227-3293</div>
+  <script>window.onload=()=>{window.print();}<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+// ── Render helpers ───────────────────────────────────────────────────────────
+function h(tag,attrs={},children=[]){
+  const el=document.createElement(tag);
+  for(const[k,v]of Object.entries(attrs)){
+    if(k==="class")el.className=v;
+    else if(k.startsWith("on"))el.addEventListener(k.slice(2).toLowerCase(),v);
+    else el.setAttribute(k,v);
+  }
+  for(const c of children){
+    if(c==null)continue;
+    el.appendChild(typeof c==="string"?document.createTextNode(c):c);
+  }
+  return el;
+}
+function div(cls,children,attrs={}){return h("div",{class:cls,...attrs},Array.isArray(children)?children:[children])}
+function btn(txt,onClick,cls=""){const b=h("button",{class:cls,onClick},typeof txt==="string"?[txt]:[txt]);return b;}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render(){
+  // Header stats
+  const gt=grandTotals();
+  document.getElementById("hdr-stats").textContent=`${gt.count} logs · $${gt.val.toFixed(0)}`;
+
+  // Crane mode header toggle
+  const hc=document.getElementById("hdr-crane");
+  hc.innerHTML="";
+  const cbtn=h("button",{class:"crane-btn"+(S.craneMode?" on":""),onClick:toggleCraneMode});
+  cbtn.innerHTML=`🎤 CRANE${S.craneMode?" ON":""}`;
+  hc.appendChild(cbtn);
+
+  // Scale bar
+  const sb=document.getElementById("scale-bar");
+  sb.innerHTML="";
+  for(const sc of S.scales){
+    const t=h("button",{class:"scale-tab"+(sc.id===S.activeId?" active":""),onClick:()=>{S.activeId=sc.id;S.tab="info";render();}});
+    t.textContent=`Scale #${sc.num}${sc.customer?" · "+sc.customer:""}`;
+    sb.appendChild(t);
+  }
+  const nb=h("button",{class:"scale-new",onClick:()=>{
+    const num=S.scales.length+1;const ns=newScale(num);
+    S.scales.push(ns);S.activeId=ns.id;S.tab="info";saveState();toast(`Scale #${num} created`);render();
+  }});
+  nb.textContent="+ New";
+  sb.appendChild(nb);
+
+  // Tab bar
+  const tb=document.getElementById("tab-bar");
+  tb.innerHTML="";
+  const TABS=[{k:"info",i:"🚛",l:"Info"},{k:"scale",i:"📏",l:"Scale"},{k:"summary",i:"📋",l:"This Scale"},{k:"all",i:"📊",l:"All Scales"},{k:"settings",i:"⚙️",l:"Settings"}];
+  for(const t of TABS){
+    const b=h("button",{class:"tab-btn"+(S.tab===t.k?" active":""),onClick:()=>{S.tab=t.k;render();}});
+    b.innerHTML=`<span class="tab-icon">${t.i}</span>${t.l}`;
+    tb.appendChild(b);
+  }
+
+  // Content
+  const content=document.getElementById("content");
+  content.innerHTML="";
+  const screen=renderScreen();
+  if(screen)content.appendChild(screen);
+}
+
+function renderScreen(){
+  switch(S.tab){
+    case"info":    return renderInfo();
+    case"scale":   return renderScale();
+    case"summary": return renderSummary();
+    case"all":     return renderAll();
+    case"settings":return renderSettings();
+  }
+}
+
+// ── INFO ─────────────────────────────────────────────────────────────────────
+function renderInfo(){
+  const sc=activeScale();
+  const wrap=div("",[]); 
+  const titleRow=div("all-card-hdr",[]);
+  const title=document.createElement("div");
+  title.style.cssText="font-size:14px;font-weight:800;color:#4dc94d;margin-bottom:12px";
+  title.textContent=`Scale #${sc.num}`;
+  titleRow.appendChild(title);
+  if(S.scales.length>1){
+    const db=h("button",{class:"del-btn",onClick:()=>{
+      if(!confirm("Delete this scale?"))return;
+      S.scales=S.scales.filter(s=>s.id!==S.activeId);
+      S.activeId=S.scales[0].id;saveState();render();
+    }});db.textContent="Delete Scale";titleRow.appendChild(db);
+  }
+  wrap.appendChild(titleRow);
+  const fields=[["customer","Customer Name","text"],["truck","Ticket / Truck #","text"],["landowner","Land Owner","text"],["date","Date","date"],["notes","Notes","text"]];
+  for(const[k,label,type]of fields){
+    const lbl=document.createElement("div");lbl.className="field-lbl";lbl.textContent=label;wrap.appendChild(lbl);
+    const inp=h("input",{class:"field-inp",type,value:sc[k]||""});
+    inp.addEventListener("change",e=>{updateActive({[k]:e.target.value});});
+    wrap.appendChild(inp);
+  }
+  const sb=h("button",{class:"start-btn",onClick:()=>{S.tab="scale";render();}});
+  sb.textContent="Start Scaling →";wrap.appendChild(sb);
+  return wrap;
+}
+
+// ── SCALE ────────────────────────────────────────────────────────────────────
+function renderScale(){
+  const wrap=div("",[]);
+  const c=getCalc(S.len,S.diam,S.grade,S.ded,S.sp);
+
+  // CRANE MODE BANNER
+  if(S.craneMode){
+    const cb=div("crane-banner",[]);
+    const icon=S.craneListening?"🎤":"🔇";
+    cb.textContent=`${icon} CRANE MODE — ${S.craneStatus||"listening for field values, say \"add log\" to submit"}`;
+    wrap.appendChild(cb);
+  }
+
+  // LAST LOG DISPLAY
+  const sc0=activeScale();
+  if(sc0.logs.length){
+    const ll=sc0.logs[sc0.logs.length-1];
+    const card=div("last-log-card",[]);
+    card.innerHTML=`<div class="last-log-ttl">Last Log Added (#${sc0.logs.length})</div>
+      <div class="last-log-body">${ll.sp} · G${ll.grade} · ${ll.len}' · ${ll.diam}"${ll.ded!=="NONE"?" · "+ll.ded:""}</div>
+      <div class="last-log-sub">${ll.net} net BF · $${ll.val.toFixed(2)}</div>`;
+    wrap.appendChild(card);
+  }
+
+  // LENGTH
+  const llen=div("lbl",["Length (ft)"]);wrap.appendChild(llen);
+  const lgrid=div("btn-grid",[]);lgrid.style.gridTemplateColumns="repeat(5,1fr)";
+  for(const l of LENGTHS){
+    const b=h("button",{class:S.len===l?"on":"",onClick:()=>{S.len=l;render();}});b.textContent=l+"'";lgrid.appendChild(b);
+  }
+  wrap.appendChild(lgrid);
+
+  // DIAMETER
+  const ldiam=document.createElement("div");ldiam.className="lbl";
+  ldiam.innerHTML=`Diameter <span style="color:#4dc94d;font-weight:800">${S.diam}"</span>`;
+  wrap.appendChild(ldiam);
+  const drow=document.createElement("div");
+  drow.style.cssText="display:grid;grid-template-columns:40px 1fr 40px;gap:3px;margin-bottom:6px";
+  const dl=h("button",{class:"act-btn",style:"font-size:18px;padding:8px",onClick:()=>{const i=DIAMS.indexOf(S.diam);if(i>0){S.diam=DIAMS[i-1];render();}}});dl.textContent="◀";
+  const dmid=document.createElement("div");dmid.style.cssText="display:grid;grid-template-columns:repeat(6,1fr);gap:2px";
+  for(const d of [6,7,8,9,10,11,12,13,14,15,16]){
+    const b=h("button",{class:S.diam===d?"on":"",style:"border-radius:8px;border:2px solid "+(S.diam===d?"#4dc94d":"#243520")+";background:"+(S.diam===d?"#4dc94d":"#172214")+";color:"+(S.diam===d?"#fff":"#dfeadb")+";font-size:12px;font-weight:700;padding:9px 2px;cursor:pointer",onClick:()=>{S.diam=d;render();}});
+    b.textContent=d+'"';dmid.appendChild(b);
+  }
+  const d17=h("button",{style:"border-radius:8px;border:2px solid #4dc94d;background:"+(S.diam>16?"#4dc94d":"#172214")+";color:"+(S.diam>16?"#fff":"#4dc94d")+";font-size:10px;font-weight:700;padding:9px 2px;cursor:pointer",onClick:()=>{if(S.diam<17)S.diam=17;render();}});
+  d17.textContent=S.diam>16?S.diam+'"':"17+";dmid.appendChild(d17);
+  const dr=h("button",{class:"act-btn",style:"font-size:18px;padding:8px",onClick:()=>{const i=DIAMS.indexOf(S.diam);if(i<DIAMS.length-1){S.diam=DIAMS[i+1];render();}}});dr.textContent="▶";
+  drow.appendChild(dl);drow.appendChild(dmid);drow.appendChild(dr);wrap.appendChild(drow);
+
+  // GRADE
+  const lgrade=div("lbl",["Grade"]);wrap.appendChild(lgrade);
+  const ggrid=div("btn-grid",[]);ggrid.style.gridTemplateColumns="repeat(5,1fr)";
+  for(const g of GRADES){
+    const b=h("button",{class:S.grade===g?"on":"",onClick:()=>{S.grade=g;render();}});b.textContent="G"+g;ggrid.appendChild(b);
+  }
+  wrap.appendChild(ggrid);
+
+  // DEDUCTION
+  const lded=div("lbl",["Deduction"]);wrap.appendChild(lded);
+  const dedgrid=div("btn-grid",[]);dedgrid.style.gridTemplateColumns="repeat(7,1fr)";
+  const nb=h("button",{class:S.ded==="NONE"?"on":"",style:"font-size:11px",onClick:()=>{S.ded="NONE";render();}});nb.textContent="None";dedgrid.appendChild(nb);
+  for(const k of DED_CODES){
+    const b=h("button",{class:S.ded===k?"on":"",onClick:()=>{S.ded=k;render();}});b.textContent=k;dedgrid.appendChild(b);
+  }
+  wrap.appendChild(dedgrid);
+
+  // SPECIES
+  const lhdr=document.createElement("div");lhdr.className="lbl";
+  const lsp=document.createElement("span");lsp.textContent="Species";
+  const morebtn=h("button",{class:"more-btn",onClick:()=>{S.showOther=!S.showOther;render();}});
+  morebtn.textContent=S.showOther?"▲ Less":"▼ More";
+  lhdr.appendChild(lsp);lhdr.appendChild(morebtn);wrap.appendChild(lhdr);
+  const spgrid=div("btn-grid",[]);spgrid.style.gridTemplateColumns="repeat(5,1fr)";
+  for(const k of SP_MAIN){
+    const b=h("button",{class:S.sp===k?"on":"",onClick:()=>{S.sp=k;render();}});
+    b.innerHTML=`<div style="font-size:14px;font-weight:800">${k}</div><div style="font-size:8px;opacity:.7">${SP_NAMES[k].split(" ")[0]}</div>`;
+    spgrid.appendChild(b);
+  }
+  wrap.appendChild(spgrid);
+  if(S.showOther){
+    const og=div("btn-grid",[]);og.style.cssText="grid-template-columns:repeat(5,1fr);margin-top:3px";
+    for(const k of SP_OTHER){
+      const b=h("button",{class:S.sp===k?"on":"",onClick:()=>{S.sp=k;S.showOther=false;render();}});
+      b.innerHTML=`<div style="font-size:14px;font-weight:800">${k}</div><div style="font-size:8px;opacity:.7">${SP_NAMES[k].split(" ")[0]}</div>`;
+      og.appendChild(b);
+    }
+    wrap.appendChild(og);
+  }
+
+  // CALC BAR
+  const cbar=div("calc-bar",[]);
+  for(const[l,v]of[["Gross BF",c.gross],["Net BF",c.net],["$/MBF",c.rate],["Value","$"+c.val.toFixed(2)]]){
+    const box=div("calc-box",[]);
+    box.innerHTML=`<div class="calc-val">${v}</div><div class="calc-lbl">${l}</div>`;
+    cbar.appendChild(box);
+  }
+  wrap.appendChild(cbar);
+
+  // ACTION ROW
+  const arow=div("act-row",[]);
+  const lastb=h("button",{class:"act-btn",onClick:()=>{if(S.lastEntry){Object.assign(S,S.lastEntry);toast("Last log loaded");render();}}});lastb.textContent="↩ Last";
+  const sumb=h("button",{class:"act-btn",onClick:()=>{S.tab="summary";render();}});sumb.textContent="📋 "+activeScale().logs.length;
+  const micb=h("button",{class:"mic-btn"+(S.listening?" on":"")+(S.craneListening?" on listening-loop":""),onClick:startVoice});micb.textContent="🎤";
+  const addb=h("button",{class:"add-btn",onClick:addLog});addb.textContent=S.editId?"✓ Update":"+ Add Log";
+  arow.appendChild(lastb);arow.appendChild(sumb);arow.appendChild(micb);arow.appendChild(addb);
+  wrap.appendChild(arow);
+  if(S.voiceMsg){const vm=div("voice-msg",[S.voiceMsg]);wrap.appendChild(vm);}
+  return wrap;
+}
+
+// ── SUMMARY ──────────────────────────────────────────────────────────────────
+function renderSummary(){
+  const sc=activeScale();const t=scaleTotals(sc.logs);
+  const wrap=div("",[]);
+  const ti=document.createElement("div");ti.style.cssText="font-size:13px;font-weight:800;color:#4dc94d;margin-bottom:8px";
+  ti.textContent=`Scale #${sc.num} — ${sc.customer||"No customer"}`;wrap.appendChild(ti);
+  const tg=div("tot-grid",[]);
+  for(const[l,v]of[["Logs",t.count],["Net BF",t.net.toLocaleString()],["MBF",(t.net/1000).toFixed(3)],["Value","$"+t.val.toFixed(2)]]){
+    const b=div("tot-box",[]);b.innerHTML=`<div class="tot-val">${v}</div><div class="tot-lbl">${l}</div>`;tg.appendChild(b);
+  }
+  wrap.appendChild(tg);
+  if(Object.keys(t.bySp).length){
+    wrap.appendChild(div("sec-ttl",["By Species"]));
+    const tbl=h("table",{class:"tbl"});
+    tbl.innerHTML=`<thead><tr><th>Species</th><th>Logs</th><th>Net BF</th><th>Value</th></tr></thead>`;
+    const tb2=document.createElement("tbody");
+    for(const[s,d]of Object.entries(t.bySp)){
+      const r=document.createElement("tr");r.innerHTML=`<td>${s} – ${SP_NAMES[s]}</td><td>${d.ct}</td><td>${d.net.toLocaleString()}</td><td>$${d.val.toFixed(2)}</td>`;tb2.appendChild(r);
+    }
+    const tr2=document.createElement("tr");tr2.className="tot-row";
+    tr2.innerHTML=`<td>Total</td><td>${t.count}</td><td>${t.net.toLocaleString()}</td><td>$${t.val.toFixed(2)}</td>`;tb2.appendChild(tr2);
+    tbl.appendChild(tb2);wrap.appendChild(tbl);
+  }
+  if(Object.keys(t.byGr).length){
+    wrap.appendChild(div("sec-ttl",["By Grade"]));
+    const tbl=h("table",{class:"tbl"});tbl.innerHTML=`<thead><tr><th>Grade</th><th>Logs</th><th>Net BF</th><th>Value</th></tr></thead>`;
+    const tb2=document.createElement("tbody");
+    for(const[g,d]of Object.entries(t.byGr).sort(([a],[b])=>+a-+b)){
+      const r=document.createElement("tr");r.innerHTML=`<td>G${g}</td><td>${d.ct}</td><td>${d.net.toLocaleString()}</td><td>$${d.val.toFixed(2)}</td>`;tb2.appendChild(r);
+    }
+    tbl.appendChild(tb2);wrap.appendChild(tbl);
+  }
+  wrap.appendChild(div("sec-ttl",["Log List"]));
+  const ll=div("",[]);
+  if(!sc.logs.length){const e=div("voice-msg",["No logs yet."]);wrap.appendChild(e);}
+  for(let i=0;i<sc.logs.length;i++){
+    const l=sc.logs[i];
+    const row=div("log-row",[]);
+    const num=div("log-num",[(i+1).toString()]);
+    const info=div("log-info",[]);
+    info.innerHTML=`<div class="log-sp">${l.sp} · G${l.grade} · ${l.len}' · ${l.diam}"${l.ded!=="NONE"?" · "+l.ded:""}</div><div class="log-bf">${l.net} net BF · $${l.val.toFixed(2)}</div>`;
+    const eb=h("button",{class:"edit-btn",onClick:(()=>{const ll2=l;return()=>{S.len=ll2.len;S.diam=ll2.diam;S.grade=ll2.grade;S.ded=ll2.ded;S.sp=ll2.sp;S.editId=ll2.id;S.tab="scale";render();}})()});eb.textContent="Edit";
+    const db=h("button",{class:"del-btn",onClick:(()=>{const id=l.id;return()=>{updateActive({logs:activeScale().logs.filter(x=>x.id!==id)});toast("Removed");render();}})()});db.textContent="✕";
+    row.appendChild(num);row.appendChild(info);row.appendChild(eb);row.appendChild(db);ll.appendChild(row);
+  }
+  wrap.appendChild(ll);
+  const er=div("exp-row",[]);
+  const pb=h("button",{class:"exp-btn",onClick:()=>generatePDF(sc,t)});pb.textContent="📄 PDF / Share";
+  const xb=h("button",{class:"exp-btn",onClick:()=>toast("Excel — coming soon")});xb.textContent="📊 Excel";
+  er.appendChild(pb);er.appendChild(xb);wrap.appendChild(er);
+  return wrap;
+}
+
+// ── ALL SCALES ───────────────────────────────────────────────────────────────
+function renderAll(){
+  const gt=grandTotals();
+  const wrap=div("",[]);
+  const ti=document.createElement("div");ti.style.cssText="font-size:13px;font-weight:800;color:#4dc94d;margin-bottom:8px";ti.textContent="All Scales — Grand Total";wrap.appendChild(ti);
+  const gg=div("grand-grid",[]);
+  for(const[l,v]of[["Total Logs",gt.count],["Total BF",gt.net.toLocaleString()],["Total Value","$"+gt.val.toFixed(2)]]){
+    const b=div("tot-box",[]);b.innerHTML=`<div class="tot-val" style="font-size:16px">${v}</div><div class="tot-lbl">${l}</div>`;gg.appendChild(b);
+  }
+  wrap.appendChild(gg);
+  for(const sc of S.scales){
+    const t=scaleTotals(sc.logs);
+    const card=div("all-card"+(sc.id===S.activeId?" active-card":""),[]);
+    const hdr=div("all-card-hdr",[]);
+    const tl=document.createElement("div");
+    tl.innerHTML=`<span style="font-weight:800;font-size:15px;color:#4dc94d">Scale #${sc.num}</span>${sc.customer?`<span style="font-size:12px;color:#6a8a65;margin-left:8px">${sc.customer}</span>`:""}`;
+    const ob=h("button",{class:"open-btn",onClick:()=>{S.activeId=sc.id;S.tab="scale";render();}});ob.textContent="Open";
+    hdr.appendChild(tl);hdr.appendChild(ob);card.appendChild(hdr);
+    if(sc.truck){const d=document.createElement("div");d.style.cssText="font-size:11px;color:#6a8a65;margin-bottom:2px";d.textContent="Truck/Ticket: "+sc.truck;card.appendChild(d);}
+    if(sc.landowner){const d=document.createElement("div");d.style.cssText="font-size:11px;color:#6a8a65;margin-bottom:6px";d.textContent="Land Owner: "+sc.landowner;card.appendChild(d);}
+    const sg=document.createElement("div");sg.style.cssText="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center";
+    for(const[l,v]of[["Logs",t.count],["Net BF",t.net.toLocaleString()],["MBF",(t.net/1000).toFixed(3)],["Value","$"+t.val.toFixed(2)]]){
+      sg.innerHTML+=`<div style="background:#172214;border-radius:6px;padding:4px 2px"><div style="font-size:13px;font-weight:700;color:#4dc94d">${v}</div><div style="font-size:9px;color:#6a8a65">${l}</div></div>`;
+    }
+    card.appendChild(sg);wrap.appendChild(card);
+  }
+  const nb=h("button",{class:"start-btn",style:"margin-bottom:16px",onClick:()=>{
+    const num=S.scales.length+1;const ns=newScale(num);S.scales.push(ns);S.activeId=ns.id;S.tab="info";saveState();toast(`Scale #${num} created`);render();
+  }});nb.textContent="+ New Scale";wrap.appendChild(nb);
+  return wrap;
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────────────────────
+function renderSettings(){
+  const wrap=div("",[]);
+  const sr=div("stab-row",[]);
+  for(const[k,l]of[["prices","Prices"],["deds","Deductions"],["display","Display"]]){
+    const b=h("button",{class:"stab-btn"+(S.stab===k?" active":""),onClick:()=>{S.stab=k;render();}});b.textContent=l;sr.appendChild(b);
+  }
+  wrap.appendChild(sr);
+  if(S.stab==="prices"){
+    for(const sp of Object.keys(SP_NAMES)){
+      const spd=div("price-sp",[]);
+      const nm=div("price-sp-name",[sp+" — "+SP_NAMES[sp]]);spd.appendChild(nm);
+      const pg=div("price-grid",[]);
+      for(const g of GRADES){
+        const gd=document.createElement("div");
+        const gl=div("price-lbl",["G"+g]);
+        const inp=h("input",{class:"price-inp",type:"number",value:(S.prices[sp]||{})[g]||0});
+        inp.addEventListener("change",e=>{if(!S.prices[sp])S.prices[sp]={};S.prices[sp][g]=+e.target.value;saveState();});
+        gd.appendChild(gl);gd.appendChild(inp);pg.appendChild(gd);
+      }
+      spd.appendChild(pg);wrap.appendChild(spd);
+    }
+  }
+  if(S.stab==="deds"){
+    for(const k of DED_CODES){
+      const row=div("ded-row",[]);
+      const info=div("ded-info",[]);info.innerHTML=`<div class="ded-name">${k}</div><div class="ded-full">${DED_NAMES[k]}</div>`;
+      const inp=h("input",{class:"ded-inp",type:"number",min:"0",max:"100",value:S.deds[k]});
+      inp.addEventListener("change",e=>{S.deds[k]=+e.target.value;saveState();});
+      const pct=document.createElement("span");pct.style.color="#6a8a65";pct.textContent="%";
+      row.appendChild(info);row.appendChild(inp);row.appendChild(pct);wrap.appendChild(row);
+    }
+  }
+  if(S.stab==="display"){
+    const tw=div("toggle-wrap",[]);
+    const ti=document.createElement("div");ti.innerHTML=`<div style="font-weight:700;font-size:15px">Dark Mode</div><div style="font-size:12px;color:#6a8a65">Field-ready dark theme</div>`;
+    const tb2=h("button",{class:"toggle-btn"+(S.dark?" on":""),onClick:()=>{S.dark=!S.dark;saveState();render();}});
+    tb2.innerHTML=`<div class="toggle-knob"></div>`;
+    tw.appendChild(ti);tw.appendChild(tb2);wrap.appendChild(tw);
+  }
+  return wrap;
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+// Browsers block mic auto-start without a fresh user gesture, so if Crane Mode
+// was left on from a previous session we reset the flag rather than show a
+// toggle that looks "on" but isn't actually listening. User just taps it again.
+if(S.craneMode){S.craneMode=false;saveState();}
+render();
+</script>
+</body>
+</html>
